@@ -9,5 +9,7 @@ logs/
 
 # Generated vector index and model caches
 data/chroma_db/
-
+*.db
+*.sqlite
+*.sqlite3
 reports/
