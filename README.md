@@ -4,6 +4,20 @@
 
 > **Disclaimer:** This is a university-course prototype. All 150 catalog entries and seven borrowing-policy sections are **fictional**; the app does not connect to any real library or perform real loans.
 
+## Project at a glance
+
+| Item | Implementation |
+| --- | --- |
+| Interface | Streamlit chat + Observability and Evaluation pages |
+| AI orchestration | LangGraph with Gemini tool calling (or clearly labeled rule-based DEMO mode) |
+| Knowledge sources | Synthetic SQLite book catalog + bilingual fictional library policies |
+| Retrieval | Sentence Transformers + local ChromaDB |
+| Safety | Input/tool/output checks, read-only tools, LLM/tool-call budgets |
+| Evidence | 30/30 offline evaluations reported by project team; selected trace recorded below |
+| Repository | https://github.com/son-hiuming/-LibraryMate-AI |
+
+> **Evidence boundary:** A passing offline evaluation does not demonstrate live Gemini reliability. Live API calls remain subject to model availability and project rate limits.
+
 ## What it does
 
 - Search the catalog of 150 example books; check copy availability and shelf location.
@@ -74,6 +88,28 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`). RAG index
 - **Observability:** a provided local dashboard showed 8 runs, 8 completed successfully, and 0 errors *in that local log set*. One example trace completed in **44.294s**, with **2 Gemini calls** and **1 `search_library_policy` tool call**; RAG retrieval was **36.757s** of the run.
 - **Known constraints:** Google API rate limits can prevent a live Gemini demo; Chroma/model initial load can make early requests slow. A passed offline suite is not proof that a live end-to-end request will always succeed.
 
+## Demonstration and screenshots
+
+Screenshots have **not yet been committed**. After capturing images from your own running application, add them under `docs/images/` (see [evidence capture guide](docs/EVIDENCE_GUIDE.md)). Recommended examples:
+
+| Screenshot | What it should prove |
+| --- | --- |
+| Chat / book search | Book title, available copies, shelf location, and clearly labeled mode |
+| Policy RAG answer | An answer grounded in fictional section P03 with source reference |
+| Observability timeline | Event sequence and tool/LLM counts for one Run ID |
+| Offline evaluation | The terminal output or Evaluation page showing 30 passed, 0 failed |
+
+Do not publish screenshots showing API keys, user-identifying queries, private local paths or unrelated browser tabs. Never represent a DEMO-mode screenshot as a live Gemini tool-calling result.
+
+## Technical decisions and limitations
+
+- **Single-agent design:** One LangGraph agent and three read-only tools keep the course MVP testable and auditable.
+- **Two data access patterns:** SQLite supports structured catalog/availability lookups; ChromaDB supports semantic policy retrieval.
+- **Offline vs live evaluation:** Offline tests validate deterministic behavior without API quota. They do not measure live answer correctness or tool-selection reliability.
+- **Rate limits:** Gemini 3 Flash quota has affected live runs. A rate-limit response is an API constraint rather than evidence of a failed Chroma retrieval.
+- **RAG cold start:** The observed example spent 36.757 s in `search_library_policy`; this is an **example trace**, not an average benchmark. Caching model and client initialization is a future optimization.
+- **Privacy:** JSONL logs omit question and answer bodies by default; a sudden process stop may leave an incomplete trace.
+
 ## Test commands
 
 ```powershell
@@ -104,7 +140,7 @@ docs/                       Architecture, demo script, hand-in notes
 
 ## Project submission
 
-Use [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md) and [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Upload code to **your own GitHub account**; no repository URL has been created by this package. Do not expose keys, personal logs or generated indexes.
+Use [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md) and [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). This project is published at **[GitHub: son-hiuming/-LibraryMate-AI](https://github.com/son-hiuming/-LibraryMate-AI)**. The submission also requires presentation slides and an introductory/demo video; link those assets here **after they are uploaded and verified**. Do not expose keys, personal logs or generated indexes.
 
 ## Limitations & safety
 
