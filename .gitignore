@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+data/*.db
+logs/
+.streamlit/secrets.toml
+
+# Generated vector index and model caches
+data/chroma_db/
+
+reports/
