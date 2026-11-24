@@ -77,12 +77,29 @@ streamlit run app.py
 
 Open the local URL Streamlit prints (usually `http://localhost:8501`). RAG index creation can download multilingual embedding weights once; internet is required for that first download.
 
+
+## Demo Screenshots
+
+### 1. Book Search (DEMO Mode)
+![Book Search](docs/images/chat-book-search.png)
+
+### 2. Semantic RAG (DEMO Mode)
+![Policy Retrieval](docs/images/rag-policy.png)
+
+### 3. Observability Dashboard
+![Observability Dashboard](docs/images/observability-timeline.png)
+
+### 4. Offline Evaluation Results
+![Offline Evaluation](docs/images/offline-evals.png)
+
+> Note: Book Search and RAG screenshots were captured in DEMO mode. The 30/30 pass rate applies to offline evaluations, not live Gemini accuracy.
+
 ## Rebuild after changing data
 
 - `data/books.csv` changed: `python -m scripts.init_db`
 - `data/library_policy.md` or embedding model changed: `python -m scripts.build_rag_index --force`
 
-## Evidence and current status (23 Nov 2026)
+## Evidence and current status 
 
 - **Offline Evals:** the project team ran `python -m scripts.run_offline_evals` and reported **30 passed, 0 failed, 0 errors, 0 skipped**. These tests cover catalog search, stock, RAG and input guardrails. They are *not* 100% real-world answer accuracy.
 - **Observability:** a provided local dashboard showed 8 runs, 8 completed successfully, and 0 errors *in that local log set*. One example trace completed in **44.294s**, with **2 Gemini calls** and **1 `search_library_policy` tool call**; RAG retrieval was **36.757s** of the run.
