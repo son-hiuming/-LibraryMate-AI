@@ -72,13 +72,13 @@ python -m scripts.init_db
 python -m scripts.build_rag_index
 python -m scripts.run_offline_evals
 python -m pytest -q
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
-Open the local URL Streamlit prints (usually `http://localhost:8501`). RAG index creation can download multilingual embedding weights once; internet is required for that first download.
+Open the local URL Streamlit prints (usually `http://localhost:8501`). RAG index creation can download multilingual embedding weights once; internet is required for that first download. The default `demo` mode runs without a Gemini API key.
 
 
-## Demo Screenshots
+## Demo Screenshots (captured from local app)
 
 ### 1. Book Search (DEMO Mode)
 ![Book Search](docs/images/chat-book-search.png)
@@ -99,24 +99,11 @@ Open the local URL Streamlit prints (usually `http://localhost:8501`). RAG index
 - `data/books.csv` changed: `python -m scripts.init_db`
 - `data/library_policy.md` or embedding model changed: `python -m scripts.build_rag_index --force`
 
-## Evidence and current status 
+## Evidence and current status (local observations)
 
 - **Offline Evals:** the project team ran `python -m scripts.run_offline_evals` and reported **30 passed, 0 failed, 0 errors, 0 skipped**. These tests cover catalog search, stock, RAG and input guardrails. They are *not* 100% real-world answer accuracy.
-- **Observability:** a provided local dashboard showed 8 runs, 8 completed successfully, and 0 errors *in that local log set*. One example trace completed in **44.294s**, with **2 Gemini calls** and **1 `search_library_policy` tool call**; RAG retrieval was **36.757s** of the run.
-- **Known constraints:** Google API rate limits can prevent a live Gemini demo; Chroma/model initial load can make early requests slow. A passed offline suite is not proof that a live end-to-end request will always succeed.
-
-## Demonstration and screenshots
-
-Screenshots have **not yet been committed**. After capturing images from your own running application, add them under `docs/images/` (see [evidence capture guide](docs/EVIDENCE_GUIDE.md)). Recommended examples:
-
-| Screenshot | What it should prove |
-| --- | --- |
-| Chat / book search | Book title, available copies, shelf location, and clearly labeled mode |
-| Policy RAG answer | An answer grounded in fictional section P03 with source reference |
-| Observability timeline | Event sequence and tool/LLM counts for one Run ID |
-| Offline evaluation | The terminal output or Evaluation page showing 30 passed, 0 failed |
-
-Do not publish screenshots showing API keys, user-identifying queries, private local paths or unrelated browser tabs. Never represent a DEMO-mode screenshot as a live Gemini tool-calling result.
+- **Observability:** a later screenshot provided by the project team shows 15 runs, 15 successes, 0 errors, and a reported mean successful-run latency of 18,646 ms *for that local log set*. A separate earlier trace completed in **44.294s**, with **2 Gemini calls**, **1 `search_library_policy` call**, and **36.757s** in the RAG tool; neither figure is a benchmark of current code.
+- **Known constraints:** Google API rate limits can prevent a live Gemini demo; Chroma/model initial load can make early requests slow. The current code caches the embedding model and Chroma client per process and includes `python -m scripts.benchmark_rag` to measure warm vs cold retrieval locally. **No post-optimization speedup is claimed here without benchmark results.**
 
 ## Technical decisions and limitations
 
@@ -124,7 +111,7 @@ Do not publish screenshots showing API keys, user-identifying queries, private l
 - **Two data access patterns:** SQLite supports structured catalog/availability lookups; ChromaDB supports semantic policy retrieval.
 - **Offline vs live evaluation:** Offline tests validate deterministic behavior without API quota. They do not measure live answer correctness or tool-selection reliability.
 - **Rate limits:** Gemini 3 Flash quota has affected live runs. A rate-limit response is an API constraint rather than evidence of a failed Chroma retrieval.
-- **RAG cold start:** The observed example spent 36.757 s in `search_library_policy`; this is an **example trace**, not an average benchmark. Caching model and client initialization is a future optimization.
+- **RAG cold start:** The observed example spent 36.757 s in `search_library_policy`; this is an **example trace**, not an average benchmark. Caching the embedding model and Chroma client is implemented; actual speedup must be measured with `python -m scripts.benchmark_rag`.
 - **Privacy:** JSONL logs omit question and answer bodies by default; a sudden process stop may leave an incomplete trace.
 
 ## Test commands
@@ -157,8 +144,15 @@ docs/                       Architecture, demo script, hand-in notes
 
 ## Project submission
 
-This project is published at **[GitHub: son-hiuming/-LibraryMate-AI](https://github.com/son-hiuming/-LibraryMate-AI)**. The submission also requires presentation slides and an introductory/demo video; link those assets here **after they are uploaded and verified**. Do not expose keys, personal logs or generated indexes.
+- **Repository:** [son-hiuming/-LibraryMate-AI](https://github.com/son-hiuming/-LibraryMate-AI)
+- **Demo filming script:** [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
+- **Submission checklist:** [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md)
+- **Screenshot evidence:** [docs/EVIDENCE_GUIDE.md](docs/EVIDENCE_GUIDE.md) and the four images above
+- **Slides / final video:** Add verified upload links here after they are published. Files are not automatically included by creating this README.
+- **Automated tests:** [GitHub Actions](.github/workflows/tests.yml) runs a Python 3.11 pytest suite on pushes and pull requests. Check the Actions tab for the actual outcome; this sentence is not a claim of a passing CI run.
+
+Do not commit `.env`, API keys, local logs, the generated Chroma index, or private data.
 
 ## Limitations & safety
 
-This is an educational demonstration, not a production service. Catalog and policy statements must be sourced from the fictional dataset. Guardrails are baseline rules, not a complete security guarantee; logs omit raw questions and responses by design. The offline evaluation set does not assess live LLM tool-selection accuracy or adversarial robustness across all prompts.
+This is an educational demonstration, not a production service. Catalog and policy statements must be sourced from the fictional dataset. Guardrails are baseline rules, not a complete security guarantee; logs omit raw questions and responses by design. The offline evaluation set does not assess live LLM tool-selection accuracy or adversarial robustness across all prompts. The GitHub Actions workflow does not call Gemini or replace local semantic-RAG benchmark measurements.
