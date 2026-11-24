@@ -46,9 +46,16 @@ def _encoder(name: str):
     return SentenceTransformer(name)
 
 
+@lru_cache(maxsize=1)
 def _db():
+    """Reuse one Chroma client per Python process.
+
+    Constructing PersistentClient for each question adds avoidable overhead.
+    The index is still read from the same local persistent directory; this
+    cache does not cache answers or skip freshness checks in retrieve().
+    """
     import chromadb
-    INDEX_PATH.mkdir(parents=True,exist_ok=True)
+    INDEX_PATH.mkdir(parents=True, exist_ok=True)
     return chromadb.PersistentClient(path=str(INDEX_PATH))
 
 
