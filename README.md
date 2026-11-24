@@ -157,7 +157,7 @@ docs/                       Architecture, demo script, hand-in notes
 
 ## Project submission
 
-Use [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md) and [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). This project is published at **[GitHub: son-hiuming/-LibraryMate-AI](https://github.com/son-hiuming/-LibraryMate-AI)**. The submission also requires presentation slides and an introductory/demo video; link those assets here **after they are uploaded and verified**. Do not expose keys, personal logs or generated indexes.
+This project is published at **[GitHub: son-hiuming/-LibraryMate-AI](https://github.com/son-hiuming/-LibraryMate-AI)**. The submission also requires presentation slides and an introductory/demo video; link those assets here **after they are uploaded and verified**. Do not expose keys, personal logs or generated indexes.
 
 ## Limitations & safety
 
