@@ -1,6 +1,6 @@
 # Evidence capture and README screenshots
 
-This guide describes how to collect verifiable project evidence for the assignment. It does not claim that screenshots are already included.
+Four screenshots are already committed under `docs/images/` and embedded in the repository README. This guide documents their provenance and how to replace or recapture them responsibly.
 
 ## 1. Prepare the environment
 
@@ -21,11 +21,11 @@ Save PNGs under `docs/images/` using these names:
 
 1. `chat-book-search.png` — a real search result showing book availability and shelf.
 2. `rag-policy.png` — a policy question/answer showing P03 and its evidence source; note whether the mode is GEMINI or DEMO.
-3. `observability-timeline.png` — the actual event timeline for one Run ID, showing `input_rail`, `agent`, `tool_call`, `output_rail`, `completed`.
+3. `observability-timeline.png` — the current uploaded image shows the **Observability dashboard summary** (run count, success count, tools). To prove a specific run's node sequence, add a separate screenshot of the Run ID timeline below the fold.
 4. `offline-evals.png` — the terminal report or Evaluation UI showing `passed=30`, `failed=0`, `error=0`, `skipped=0`.
 
 
-## 3. Embed in README only after the files exist
+## 3. README image references (already present)
 
 ```markdown
 ![Book search demo](docs/images/chat-book-search.png)
@@ -45,6 +45,6 @@ Save PNGs under `docs/images/` using these names:
 ## 5. Final submission links
 
 - GitHub: https://github.com/son-hiuming/-LibraryMate-AI
-- Slides: add a stable URL after uploading
-- Intro/demo video: add a stable URL after uploading
+- Slides: add a stable URL after uploading and verifying
+- Intro/demo video: add a stable URL after uploading and verifying
 - Report: `reports/offline_evals.json` is generated locally; publish only if reviewed for sensitive information
