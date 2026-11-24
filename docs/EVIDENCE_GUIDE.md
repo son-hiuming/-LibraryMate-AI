@@ -14,7 +14,6 @@ python -m pytest -q
 streamlit run app.py
 ```
 
-Use the **same version** of the code as the version shown in the screenshots. Ensure that `.env` is not committed. For a live Gemini demo, check your quota first and label the mode clearly.
 
 ## 2. Capture four images
 
@@ -25,7 +24,6 @@ Save PNGs under `docs/images/` using these names:
 3. `observability-timeline.png` — the actual event timeline for one Run ID, showing `input_rail`, `agent`, `tool_call`, `output_rail`, `completed`.
 4. `offline-evals.png` — the terminal report or Evaluation UI showing `passed=30`, `failed=0`, `error=0`, `skipped=0`.
 
-Avoid including credentials, account-specific paths, or private questions in images. If a screenshot contains information you cannot safely crop, redact it locally before sharing.
 
 ## 3. Embed in README only after the files exist
 
@@ -36,7 +34,6 @@ Avoid including credentials, account-specific paths, or private questions in ima
 ![Offline evaluation results](docs/images/offline-evals.png)
 ```
 
-For GitHub upload, create a branch and add the actual PNG files first. Then update README with those Markdown image references and open a pull request to `main`.
 
 ## 4. Evidence interpretation
 
