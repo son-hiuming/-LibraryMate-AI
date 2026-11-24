@@ -31,6 +31,13 @@ class AgentState(TypedDict):
 
 def _mode(): return os.getenv('LIBRARYMATE_MODE','demo').lower()
 
+def _is_simple_greeting(query: str) -> bool:
+    """Only exact, harmless greetings; never bypass tools for factual queries."""
+    return bool(re.fullmatch(
+        r'(?:xin chào|chào|hello|hi|hey|chào bạn|xin chào bạn)[!.\s]*',
+        query.strip().casefold()
+    ))
+
 def _get_llm():
     if not os.getenv('GOOGLE_API_KEY'):
         raise RuntimeError('GOOGLE_API_KEY missing. Use LIBRARYMATE_MODE=demo or set a key.')
@@ -122,6 +129,17 @@ def agent(s):
                   if not any(isinstance(m, ToolMessage) for m in s['messages'])
                   else _demo_final(s['messages']))
     elif _mode() == 'gemini':
+        query = next((m.content for m in s['messages'] if isinstance(m, HumanMessage)), '')
+        if s['steps'] == 0 and isinstance(query, str) and _is_simple_greeting(query):
+            answer = AIMessage(content=(
+                'Xin chào! Tôi là LibraryMate AI, trợ lý thư viện giả lập. '
+                'Bạn có thể hỏi tôi về sách, tình trạng sách hoặc quy định mượn trả.'
+            ))
+            record_event(s['run_id'], 'local_greeting', saved_llm_calls=1)
+            count = 0
+            record_event(s['run_id'], 'agent', latency_ms=round((perf_counter()-start)*1000),
+                         llm_call=0, tool_count=count, local_response=True)
+            return {'messages': [answer], 'steps': s['steps']}
         try:
             answer = _get_llm().invoke([SystemMessage(content=SYSTEM)] + s['messages'])
         except Exception as exc:
@@ -143,23 +161,33 @@ def run_tools(s):
     if len(calls) > MAX_TOOLS_PER_TURN or s.get('tool_count', 0) + len(calls) > MAX_TOTAL_TOOLS:
         raise RuntimeError('ToolBudgetExceeded')
     outputs = []
+    # Read-only tools: avoid executing identical calls twice in the same
+    # tool batch. Still return one ToolMessage for each requested call ID.
+    batch_results = {}
     for call in calls:
         name = call['name']
         args = call.get('args', {})
         err = check_tool(name, args)
         start = perf_counter()
-        try:
-            if err:
-                raise ValueError(err)
-            result = TOOL_MAP[name].invoke(args)
-            status = 'ok'
-        except Exception as exc:
-            result = json.dumps({'error': str(exc)}, ensure_ascii=False)
-            status = 'error'
+        key = (name, json.dumps(args, ensure_ascii=False, sort_keys=True, default=str))
+        cached = False
+        if key in batch_results:
+            result, status = batch_results[key]
+            cached = True
+        else:
+            try:
+                if err:
+                    raise ValueError(err)
+                result = TOOL_MAP[name].invoke(args)
+                status = 'ok'
+            except Exception as exc:
+                result = json.dumps({'error': str(exc)}, ensure_ascii=False)
+                status = 'error'
+            batch_results[key] = (result, status)
         # Keep tool-call id matched so LangGraph conversations remain valid.
         outputs.append(ToolMessage(content=result, tool_call_id=call['id'], name=name))
         record_event(s['run_id'], 'tool_call', tool=name, status=status,
-                     latency_ms=round((perf_counter()-start)*1000))
+                     cached=cached, latency_ms=round((perf_counter()-start)*1000))
     return {'messages': outputs, 'tool_count': s.get('tool_count', 0) + len(calls)}
 
 
